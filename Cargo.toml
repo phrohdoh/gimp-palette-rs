@@ -1,0 +1,5 @@
+[package]
+name = "gimp_palette"
+license = "MIT"
+version = "0.1.0"
+authors = ["Taryn Hill <taryn@phrohdoh.com>"]

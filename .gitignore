@@ -1,0 +1,6 @@
+target/
+**/*.rs.bk
+Cargo.lock
+
+# GIMP palette files
+*.gpl
