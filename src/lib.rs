@@ -1,3 +1,6 @@
+use std::path::Path;
+use std::io::Write;
+
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -10,7 +13,17 @@ impl ToString for Color {
     }
 }
 
-pub fn create_string_from_colors(colors: &[Color]) -> String {
+pub fn create_gpl<P: AsRef<Path>>(gpl_path: P, colors: &[Color]) -> Result<(), std::io::Error> {
+  let s = create_string_from_colors(colors);
+  let mut f = std::fs::OpenOptions::new()
+    .write(true)
+    .create(true)
+    .open(gpl_path)?;
+
+  f.write_all(s.as_bytes())
+}
+
+fn create_string_from_colors(colors: &[Color]) -> String {
     let mut s = format!("GIMP Palette\nName: test-palette\nColumns: {}\n",
                         colors.len());
     s.extend(colors.iter().map(|c| c.to_string() + "\n"));
