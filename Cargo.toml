@@ -1,5 +1,10 @@
 [package]
 name = "gimp_palette"
+description = "Converts RGB color values to a GIMP gpl palette"
 license = "MIT"
 version = "0.1.0"
 authors = ["Taryn Hill <taryn@phrohdoh.com>"]
+repository = "https://github.com/Phrohdoh/gimp-palette-rs"
+keywords = ["gimp", "gpl", "palette"]
+documentation = "https://docs.rs/gimp_palette/"
+readme = "README.md"
