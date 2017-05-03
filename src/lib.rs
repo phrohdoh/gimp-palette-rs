@@ -13,10 +13,16 @@ pub struct Palette {
 }
 
 impl Palette {
-    pub fn new<S: ToString>(name: S, colors: Vec<Color>) -> Self {
-        Palette {
-            _name: name.to_string(),
-            _colors: colors,
+    /// Creates a new named Palette from a non-zero-length collection of Colors.
+    ///
+    /// Passing a zero-length collection will result in an Err(String)
+    pub fn new<S: ToString>(name: S, colors: Vec<Color>) -> Result<Self, String> {
+        match colors.len() {
+            0 => Err(String::from("Palettes must have at least 1 color")),
+            _ => Ok(Palette {
+                _name: name.to_string(),
+                _colors: colors,
+            }),
         }
     }
 
@@ -29,13 +35,15 @@ impl Palette {
     }
 
     pub fn write_to_file<P: AsRef<Path>>(&self, file_path: P) -> Result<(), std::io::Error> {
-        let s = create_string_from_colors(&self._colors);
+        let header = format!("GIMP Palette\nName: {}\nColumns: {}\n", self._name, self._colors.len());
+        let colors_string = create_string_from_colors(&self._colors);
         let mut f = std::fs::OpenOptions::new()
             .write(true)
             .create(true)
             .open(file_path)?;
 
-        f.write_all(s.as_bytes())
+        let final_string = header + &colors_string;
+        f.write_all(final_string.as_bytes())
     }
 }
 
@@ -46,27 +54,31 @@ impl ToString for Color {
 }
 
 fn create_string_from_colors(colors: &[Color]) -> String {
-    let mut s = format!("GIMP Palette\nName: nameless-palette\nColumns: {}\n",
-                        colors.len());
-    s.extend(colors.iter().map(|c| c.to_string() + "\n"));
-    s
+    colors.iter().map(|c| c.to_string() + "\n").collect::<String>()
 }
 
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
+    fn colorless_palette_err() {
+        assert!(super::Palette::new("Failure", vec![]).is_err());
+    }
+
+    #[test]
+    fn colors_1() {
+        let colors = vec![super::Color { r: 255, g: 0, b: 0 }];
+
+        assert_eq!(super::create_string_from_colors(&colors),
+                   "255   0   0\n");
+    }
+
+    #[test]
+    fn colors_3() {
         let colors = vec![super::Color { r: 255, g: 0, b: 0 },
                           super::Color { r: 0, g: 255, b: 0 },
                           super::Color { r: 0, g: 0, b: 255 }];
 
         assert_eq!(super::create_string_from_colors(&colors),
-                   r#"GIMP Palette
-Name: nameless-palette
-Columns: 3
-255   0   0
-  0 255   0
-  0   0 255
-"#);
+                   "255   0   0\n  0 255   0\n  0   0 255\n");
     }
 }
