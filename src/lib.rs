@@ -41,6 +41,8 @@ impl Palette {
         }
     }
 
+    /// Creates a new Palette from a file path.
+    /// TODO: Decide how to handle the 'Columns' header value.
     pub fn read_from_file<P: AsRef<Path>>(file_path: P) -> Result<Self, NewPaletteError> {
         let f = File::open(&file_path)?;
         let reader = BufReader::new(f);
